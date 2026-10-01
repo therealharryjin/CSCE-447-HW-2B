@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SQL Login</title>
+  <style>
+    body { font-family: sans-serif; max-width: 440px; margin: 50px auto; }
+    label { display: block; margin-top: 10px; }
+    input { width: 100%; padding: 6px; box-sizing: border-box; }
+    button { margin-top: 14px; padding: 8px 16px; }
+    #message { margin-top: 16px; font-weight: bold; }
+    .error { color: #b00; }
+    .ok { color: #080; }
+    .hint { color: #555; font-size: 13px; margin-top: 22px; line-height: 1.5; }
+    code { background: #eee; padding: 1px 4px; }
+  </style>
+</head>
+<body>
+  <h1>SQL Login</h1>
+  <p>This login checks credentials against a SQLite database using a parameterized query.</p>
+
+  <label for="email">Email</label>
+  <input type="text" id="email" name="email">
+
+  <label for="password">Password</label>
+  <input type="text" id="password" name="password">
+
+  <button onclick="attempt()">Log in</button>
+
+  <p id="message"></p>
+
+  <div class="hint">
+    Injection to try, in the email field: <code>' OR 1=1--</code> with any password.<br>
+    Real account: <code>admin@juice.com</code> / <code>SuperSecret123</code>
+  </div>
+
+  <script>
+    async function attempt() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const message = document.getElementById('message');
+      const res = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      message.textContent = data.message;
+      message.className = data.ok ? 'ok' : 'error';
+    }
+  </script>
+</body>
+</html>
