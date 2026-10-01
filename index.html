@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <style>
+    body { font-family: sans-serif; max-width: 320px; margin: 60px auto; }
+    label { display: block; margin-top: 10px; }
+    input { width: 100%; padding: 6px; box-sizing: border-box; }
+    button { margin-top: 14px; padding: 8px 16px; }
+    #message { margin-top: 14px; }
+    .error { color: #b00; }
+    .ok { color: #080; }
+  </style>
+</head>
+<body>
+  <h1>Login</h1>
+  <form id="loginForm">
+    <label for="email">Email</label>
+    <input type="text" id="email" name="email">
+
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password">
+
+    <button type="submit">Log in</button>
+  </form>
+  <p id="message"></p>
+
+  <script>
+    const form = document.getElementById('loginForm');
+    const message = document.getElementById('message');
+
+    // Client-side validation: no empty fields, email contains "@", password at least 8 characters
+    function validate(email, password) {
+      if (email === '' || password === '') {
+        return 'Please fill in both fields.';
+      }
+      if (!email.includes('@')) {
+        return 'Email must contain "@".';
+      }
+      if (password.length < 8) {
+        return 'Password must be at least 8 characters.';
+      }
+      return '';
+    }
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      const error = validate(email, password);
+      if (error !== '') {
+        message.textContent = error;
+        message.className = 'error';
+        return;
+      }
+
+      // Send to the server, which runs the same checks again
+      const res = await fetch('/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await res.json();
+      message.textContent = data.message;
+      message.className = data.ok ? 'ok' : 'error';
+    });
+  </script>
+</body>
+</html>
